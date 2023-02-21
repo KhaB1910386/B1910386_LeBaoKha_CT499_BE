@@ -1,34 +1,34 @@
 const { ObjectId } = require("mongodb");
-
 class ContactService {
-    constructor(client) {
-        this.Contact = client.db().collection("contacts");
-    }
-
-    extractConactData(payload) {
-        const contact = {
-            name: payload.name,
-            email: payload.email,
-            address: payload.address,
-            phone: payload.phone,
-            favorite: payload.favorite,
-        };
-
-        Objects.keys(contact).forEach(
-            (key) => contact[key] === undefined && delete contact[key]
-        );
-        return contact;
-    }
-
-    async create(payload) {
-        const contact = this.extractConactData(payload);
-        const result = await this.Contact.findOneAndUpdate(
-            contact,
-            { $set: { favorite: contact.favorite === true } },
-            { returnDocument: "after", upsert: true }
-        );
-        return result.value;
-    }
+  constructor(client) {
+    this.Contact = client.db().collection("contacts");
+  }
+  extractContactData(payload) {
+    const contact = {
+      name: payload.name,
+      email: payload.email,
+      address: payload.address,
+      phone: payload.phone,
+      favorite: payload.favorite,
+    };
+    // Remove undefined fields
+    Object.keys(contact).forEach((key) => contact[key] === undefined && delete contact[key]);
+    // loop every contact's key and check condition after it
+    // if value[key] in contact === undefined => delete it
+    return contact;
+  }
+  //todo: create
+  async create(payload) {
+    const contact = this.extractContactData(payload);
+    const result = await this.Contact.findOneAndUpdate(
+      contact,
+      {
+        $set: { favorite: contact.favorite === true }, // options
+      },
+      { returnDocument: "after", upsert: true }
+    );
+    return result.value;
+  }
 
     async find(filter) {
         const cursor = await this.Contact.find(filter);
@@ -51,7 +51,7 @@ class ContactService {
         const filter = {
             _id: ObjectId.isValid(id) ? new ObjectId(id) : null,
         };
-        const update = this.extractConactData(payload);
+        const update = this.extractContactData(payload);
         const result = await this.Contact.findOneAndUpdate(
             filter,
             { $set: update },
